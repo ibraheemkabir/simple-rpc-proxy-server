@@ -3,31 +3,28 @@ const bodyParser = require("body-parser");
 const request = require('request');
 const cors = require('cors')
 
-const { JSONRPCServer } = require("json-rpc-2.0");
-
-const server = new JSONRPCServer();
-
-
 const app = express();
+
+app.use(cors()); // <---- use cors middleware
+
 app.use(bodyParser.json());
 
-const corsOptions = {
-    origin: (origin, callback) => {
-        callback(null, true)
-    },
-}
 
-app.options('*', cors(corsOptions))
+app.options('*', cors({ origin: '*' }))
 
-app.use("/", cors(corsOptions), (req, res) => {
+app.use("/", cors({ origin: '*' }), (req, res) => {
   const jsonRPCRequest = req.body;
   const urlString = req.query["url"];
   const url = `${urlString}`;
+  console.log(url)
   request(url, {
     method: "post",
     headers:
     { 
-     "content-type": "application/json"
+     "Access-Control-Allow-Origin": '*',
+     "content-type": "application/json",
+     "Access-Control-Allow-Credentials": true,
+     "Access-Control-Allow-Headers": 'Origin,X-Requested-With,Content-Type,Accept,content-type,application/json'
     },
     body: JSON.stringify(jsonRPCRequest)
 
@@ -35,4 +32,5 @@ app.use("/", cors(corsOptions), (req, res) => {
 
 });
 
-app.listen(3001);
+app.listen(process.env.PORT || 3001)
+
